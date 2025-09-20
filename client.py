@@ -3,6 +3,8 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
+from kivy.uix.popup import Popup
+from kivy.uix.textinput import TextInput
 
 import socket
 import threading
@@ -31,11 +33,34 @@ class DiceApp(App):
         self.layout.add_widget(self.log)
         self.layout.add_widget(self.btn)
 
+        self.logbox = BoxLayout(orientation = "vertical")
+        self.input_login = TextInput()
+        self.input_password = TextInput()
+        self.btn_signup = Button(text = "sign up")
+
+        self.logbox.add_widget(self.input_login)
+        self.logbox.add_widget(self.input_password)
+        self.logbox.add_widget(self.btn_signup)
+
+        self.login_win = Popup(content = self.logbox)
+        self.login_win.open()
+
         #!!!!!!!!!
         threading.Thread(target=self.listen_server, daemon=True).start()
 
         return self.layout
     
+    def signup(self, btn):
+        l, p = self.input_login.text, self.input_password.text
+
+        msg=json.dumps({"cmd":"add_user", "login":l, "password":p})
+
+        try:
+            self.sock.sendall(msg.encode())
+        except:
+            pass
+
+
     def roll(self, btn):
         try:
             msg = {"cmd":"roll"}
